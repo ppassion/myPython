@@ -57,7 +57,7 @@ def getDirectSubSize(path):
     with os.scandir(path) as nextDir:
         for subDir in nextDir:
             size = getFolderSize(subDir)
-            print('%-30s%-20s' % (calBytes(size),subDir.name))
+            print('%-30s%-20s' % (calBytes(size), subDir.name))
 
 
 userFolder = "D:\\software\\VMware\\Virtual Machines\\hadoop1"
