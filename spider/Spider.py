@@ -20,8 +20,18 @@ def getData():
     for i in range(0, 10):
         url = baseUrl + str(i * 25)
         html = askUrl(url)
+        soup = BeautifulSoup(html, "html.parser")
+        for item in soup.find_all("div", class_="item"):
+            item = str(item)
+            print(getLink(item))
         dataList.append(html)
     return dataList
+
+
+def getLink(item):
+    findLink = re.compile(r'<a href="(.*?)">')
+    link = re.findall(findLink, item)[0]
+    return link
 
 
 def saveData(path):
@@ -43,5 +53,5 @@ def askUrl(url):
 
 
 if __name__ == '__main__':
-    # getData()
-    print(getData())
+    getData()
+    # print(len(getData()))
