@@ -16,22 +16,42 @@ savePath = ".\\top250,xlsx"
 
 
 def getData():
-    dataList = []
-    for i in range(0, 10):
+    for i in range(0, 1):
         url = baseUrl + str(i * 25)
         html = askUrl(url)
         soup = BeautifulSoup(html, "html.parser")
         for item in soup.find_all("div", class_="item"):
             item = str(item)
-            print(getLink(item))
-        dataList.append(html)
-    return dataList
+            getInfo(item)
 
 
-def getLink(item):
+def getInfo(item):
+    # title
+    findTitle = re.compile(r'<span class="title">(.*?)</span>')
+    title = re.findall(findTitle, item)
+    print(title)
+
+    # link
     findLink = re.compile(r'<a href="(.*?)">')
-    link = re.findall(findLink, item)[0]
-    return link
+    link = re.findall(findLink, item)
+    print(link)
+
+    # img
+    findImg = re.compile(r'<img.*src="(.*?)"')
+    img = re.findall(findImg, item)
+    print(img)
+
+    # rating
+    findRating = re.compile(r'<span class="rating_num" property="v:average">(.*?)</span>')
+    rating = re.findall(findRating, item)
+    print(rating)
+
+    # people
+    findPeople = re.compile(r'<span>(\d*人评价)</span>')
+    people = re.findall(findPeople, item)
+    print(people)
+
+    print("=================================================")
 
 
 def saveData(path):
