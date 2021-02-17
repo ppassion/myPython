@@ -60,7 +60,6 @@ def generatePostContents():
 
 def processPostContents(contents):
     for content in contents:
-        # print(content)
         findExistFlag = re.compile(r'指定的主题不存在或已被删除或正在被审核')
         existFlag = re.findall(findExistFlag, str(content))
         if len(existFlag) >= 1:
