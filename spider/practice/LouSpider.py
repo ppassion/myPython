@@ -29,12 +29,9 @@ def askUrl(url):
 
 
 def getData():
-    # contents = generatePostContents()
-    # processPostContents(contents)
-    # pageLinks = getPageLinks()
-    # getPostLinks(pageLinks)
-    # generatePostContents()
-    getPostContents()
+    # print("开始获取页面链接")
+    getPageLinks()
+    # getPostContents()
 
 
 def getPageLinks():
@@ -45,27 +42,29 @@ def getPageLinks():
     pageCount = re.findall(findPageCount, str(soup))
     pageCount = int(pageCount[0].strip())
     pageLinks = []
-    for i in range(0, 2):
+    for i in range(0, pageCount):
         link = baseUrl + "forum.php?mod=forumdisplay&fid=45&page=" + str(i + 1)
+        print(link)
         pageLinks.append(link)
-    return pageLinks
+    getPostLinks(pageLinks)
 
 
 def getPostLinks(pageLinks):
     postIds = []
+    print("开始打印postId")
     for pageLink in pageLinks:
         html = askUrl(pageLink)
         soup = BeautifulSoup(html, "html.parser")
         findPostId = re.compile(r'<tbody id="normalthread_(.*)">')
         postId = re.findall(findPostId, str(soup))
         postIds.extend(postId)
-    print(postIds)
-    insertPostIdsToDatabase(postIds)
+        print(postId)
+        insertPostIdsToDatabase(postId)
     return postIds
 
 
 def insertPostIdsToDatabase(postIds):
-    baseSql = "insert into POST_ID values('"
+    baseSql = "insert into POST_ID(post_id,is_download) values('"
     conn = mySql.MyPythonSql()
     for postId in postIds:
         sql = baseSql + postId + "', '0')"
@@ -76,48 +75,86 @@ def insertPostIdsToDatabase(postIds):
 def getPostContents():
     contents = []
     conn = mySql.MyPythonSql()
-    postIds = conn.query("select post_id from POST_ID where is_download = '0' limit 1;")
+    postIds = conn.query("select post_id from POST_ID where is_download = '0'")
     conn.close()
     basePostUrl = "http://www.xiaohonglouss.com/forum.php?mod=viewthread&tid="
     for postId in postIds:
         url = basePostUrl + postId[0]
         html = askUrl(url)
         soup = BeautifulSoup(html, "html.parser")
-        contents.append([postId[0], soup])
-    processPostContents(contents)
+        content = [postId[0], soup]
+        processPostContents(content)
 
 
-def processPostContents(contents):
-    for content in contents:
-        postId = content[0]
-        soup = content[1]
-        findExistFlag = re.compile(r'指定的主题不存在或已被删除或正在被审核')
-        existFlag = re.findall(findExistFlag, str(soup))
-        if len(existFlag) >= 1:
-            conn = mySql.MyPythonSql()
-            conn.update("update POST_ID set is_download = '2' where post_id = '" + postId + "'")
-            conn.close()
-        else:
-            getInfo(postId, soup)
+def processPostContents(content):
+    postId = content[0]
+    soup = content[1]
+    findExistFlag = re.compile(r'指定的主题不存在或已被删除或正在被审核')
+    existFlag = re.findall(findExistFlag, str(soup))
+    if len(existFlag) >= 1:
+        conn = mySql.MyPythonSql()
+        conn.update("update POST_ID set is_download = '2' where post_id = '" + postId + "'")
+        conn.close()
+    else:
+        getInfo(postId, soup)
 
 
 def getInfo(postId, soup):
-    title = getSpecifiedPattern(soup, 'title', r'<span id="thread_subject">(.*?)</span>')
-    date = getSpecifiedPattern(soup, 'date', r'【验证时间】：(.*)<br/>')
-    location = getSpecifiedPattern(soup, 'location', r'【验证地点】：(.*)<br/>')
-    env = getSpecifiedPattern(soup, 'env', r'【环境设备】：(.*)<br/>')
-    price = getSpecifiedPattern(soup, 'price', r'【价格一览】：(.*)<br/>')
-    key = getSpecifiedPattern(soup, 'key', r'【重点推荐】：(.*)<br/>')
-    detail = getSpecifiedPattern(soup, 'detail', r'【验证细节】：(.*)<br/>')
+    print("获取帖子" + postId)
+    title = getSpecifiedPattern(soup, r'<span id="thread_subject">(.*?)</span>')
+    date = getSpecifiedPattern(soup, r'【验证时间】：(.*)<br/>')
+    location = getSpecifiedPattern(soup, r'【验证地点】：(.*)<br/>')
+    env = getSpecifiedPattern(soup, r'【环境设备】：(.*)<br/>')
+    price = getSpecifiedPattern(soup, r'【价格一览】：(.*)<br/>')
+    keyPoint = getSpecifiedPattern(soup, r'【重点推荐】：(.*)<br/>')
+    detail = getSpecifiedPattern(soup, r'【验证细节】：(.*)<br/>')
+    downloadImg(postId, soup)
+    print(postId)
+    print(title)
+    print(date)
+    print(location)
+    print(env)
+    print(price)
+    print(keyPoint)
+    print(detail)
+    print("=============================")
+    sql = "insert into POST_CONTENT(post_id,title,date,location,env,price,keypoint,detail) values('" \
+          + postId + "','" \
+          + title + "','" \
+          + date + "','" \
+          + location + "','" \
+          + env + "','" \
+          + price + "','" \
+          + keyPoint + "','" \
+          + detail + "')"
+    conn = mySql.MyPythonSql()
+    conn.insert(sql)
+    conn.update("update POST_ID set is_download = '1' where post_id = '" + postId + "'")
+    conn.close()
 
 
 def getSpecifiedPattern(soup, example):
     pattern = re.compile(example)
     founds = re.findall(pattern, str(soup))
+    found = ''
     if len(founds) > 0:
         found = founds[0]
         found = found.replace('</font>', '')
-        return found
+    return found
+
+
+def downloadImg(postId, soup):
+    imgList = []
+    for item in soup.find_all("img", class_="zoom"):
+        file = item['file']
+        imgLink = baseUrl + file
+        imgList.append(imgLink)
+    for i in range(1, len(imgList) + 1):
+        imgLink = imgList[i - 1]
+        filePath = "./imgs/" + postId + "/"
+        if not os.path.exists(filePath):
+            os.mkdir(filePath)
+        request.urlretrieve(imgLink, filePath + postId + "_" + str(i) + ".jpg")
 
 
 if __name__ == '__main__':
