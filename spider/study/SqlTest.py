@@ -5,5 +5,6 @@
 from myTools import mySql
 
 if __name__ == '__main__':
-    result = mySql.MyPythonSql().query(sql="show databases;")
+    result = mySql.MyPythonSql().query(sql="select * from POST_ID;")
+    # result = mySql.MyPythonSql().insert(sql="insert into pythonTest(name) values('bbbbbbbb');")
     print(result)

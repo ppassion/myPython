@@ -5,9 +5,10 @@ import sqlite3
 
 from bs4 import BeautifulSoup
 import re
-import xlwt
 import urllib
 from urllib import request, parse
+from myTools import mySql
+import os
 
 baseUrl = "http://www.xiaohonglouss.com/"
 dataList = []
@@ -28,8 +29,12 @@ def askUrl(url):
 
 
 def getData():
-    contents = generatePostContents()
-    processPostContents(contents)
+    # contents = generatePostContents()
+    # processPostContents(contents)
+    # pageLinks = getPageLinks()
+    # getPostLinks(pageLinks)
+    # generatePostContents()
+    getPostContents()
 
 
 def getPageLinks():
@@ -40,93 +45,79 @@ def getPageLinks():
     pageCount = re.findall(findPageCount, str(soup))
     pageCount = int(pageCount[0].strip())
     pageLinks = []
-    for i in range(0, pageCount):
+    for i in range(0, 2):
         link = baseUrl + "forum.php?mod=forumdisplay&fid=45&page=" + str(i + 1)
         pageLinks.append(link)
     return pageLinks
 
 
-def generatePostContents():
+def getPostLinks(pageLinks):
+    postIds = []
+    for pageLink in pageLinks:
+        html = askUrl(pageLink)
+        soup = BeautifulSoup(html, "html.parser")
+        findPostId = re.compile(r'<tbody id="normalthread_(.*)">')
+        postId = re.findall(findPostId, str(soup))
+        postIds.extend(postId)
+    print(postIds)
+    insertPostIdsToDatabase(postIds)
+    return postIds
+
+
+def insertPostIdsToDatabase(postIds):
+    baseSql = "insert into POST_ID values('"
+    conn = mySql.MyPythonSql()
+    for postId in postIds:
+        sql = baseSql + postId + "', '0')"
+        conn.insert(sql=sql)
+    conn.close()
+
+
+def getPostContents():
     contents = []
-    postUrl = "http://www.xiaohonglouss.com/forum.php?mod=viewthread&tid="
-    for i in range(102898, 102899):
-        # for i in range(1, 5):
-        url = postUrl + str(i)
+    conn = mySql.MyPythonSql()
+    postIds = conn.query("select post_id from POST_ID where is_download = '0' limit 1;")
+    conn.close()
+    basePostUrl = "http://www.xiaohonglouss.com/forum.php?mod=viewthread&tid="
+    for postId in postIds:
+        url = basePostUrl + postId[0]
         html = askUrl(url)
         soup = BeautifulSoup(html, "html.parser")
-        contents.append(soup)
-    return contents
+        contents.append([postId[0], soup])
+    processPostContents(contents)
 
 
 def processPostContents(contents):
     for content in contents:
+        postId = content[0]
+        soup = content[1]
         findExistFlag = re.compile(r'指定的主题不存在或已被删除或正在被审核')
-        existFlag = re.findall(findExistFlag, str(content))
+        existFlag = re.findall(findExistFlag, str(soup))
         if len(existFlag) >= 1:
-            print(existFlag)
+            conn = mySql.MyPythonSql()
+            conn.update("update POST_ID set is_download = '2' where post_id = '" + postId + "'")
+            conn.close()
         else:
-            getInfo(str(content))
-            getImg(content)
+            getInfo(postId, soup)
 
 
-def getImg(soup):
-    imgList = []
-    for item in soup.find_all("img", class_="zoom"):
-        file = item['file']
-        imgLink = baseUrl + file
-        imgList.append(imgLink)
-    for imgLink in imgList:
-        request.urlretrieve(imgLink, "picture1.jpg")
-    return imgList
+def getInfo(postId, soup):
+    title = getSpecifiedPattern(soup, 'title', r'<span id="thread_subject">(.*?)</span>')
+    date = getSpecifiedPattern(soup, 'date', r'【验证时间】：(.*)<br/>')
+    location = getSpecifiedPattern(soup, 'location', r'【验证地点】：(.*)<br/>')
+    env = getSpecifiedPattern(soup, 'env', r'【环境设备】：(.*)<br/>')
+    price = getSpecifiedPattern(soup, 'price', r'【价格一览】：(.*)<br/>')
+    key = getSpecifiedPattern(soup, 'key', r'【重点推荐】：(.*)<br/>')
+    detail = getSpecifiedPattern(soup, 'detail', r'【验证细节】：(.*)<br/>')
 
 
-def getInfo(content):
-    postInfo = {}
-
-    # title
-    findTitle = re.compile(r'<span id="thread_subject">(.*?)</span>')
-    title = re.findall(findTitle, content)
-    print(title)
-    postInfo["title"] = title
-
-    # date
-    findDate = re.compile(r'【验证时间】：(.*)<br/>')
-    date = re.findall(findDate, content)
-    print(date)
-    postInfo["date"] = date
-
-    # location
-    findLocation = re.compile(r'【验证地点】：(.*)<br/>')
-    location = re.findall(findLocation, content)
-    print(location)
-    postInfo["location"] = location
-
-    # env
-    findEnv = re.compile(r'【环境设备】：(.*)<br/>')
-    env = re.findall(findEnv, content)
-    print(env)
-    postInfo["env"] = env
-
-    # price
-    findPrice = re.compile(r'【价格一览】：(.*)<br/>')
-    price = re.findall(findPrice, content)
-    print(price)
-    postInfo["price"] = price
-
-    # key
-    findKey = re.compile(r'【重点推荐】：(.*)<br/>')
-    key = re.findall(findKey, content)
-    print(key)
-    postInfo["key"] = key
-
-    # detail
-    findDetail = re.compile(r'【验证细节】：(.*)<br/>')
-    detail = re.findall(findDetail, content)
-    print(detail)
-    postInfo["detail"] = detail
-
-    print("=================================================")
-    return postInfo
+def getSpecifiedPattern(soup, example):
+    pattern = re.compile(example)
+    founds = re.findall(pattern, str(soup))
+    if len(founds) > 0:
+        found = founds[0]
+        found = found.replace('</font>', '')
+        return found
 
 
 if __name__ == '__main__':
