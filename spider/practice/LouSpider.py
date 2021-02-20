@@ -157,7 +157,7 @@ def getSpecifiedPattern(soup, example):
     found = ''
     if len(founds) > 0:
         found = founds[0]
-        found = found.replace('</font>', '')
+        found = re.sub(r"<font.*>", '', found)
     return found
 
 
@@ -175,7 +175,7 @@ def downloadImg(postId, soup):
         try:
             request.urlretrieve(imgLink, filePath + postId + "_" + str(i) + ".jpg")
         except urllib.error.URLError as e:
-            print(e.code)
+            print(e)
         except ConnectionResetError as e:
             print(e)
 
