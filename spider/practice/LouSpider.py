@@ -1,7 +1,6 @@
 # coding: utf-8
 # Author：chyh
 # Date ：2021/2/4 11:28
-import sqlite3
 
 from bs4 import BeautifulSoup
 import re
@@ -9,6 +8,7 @@ import urllib
 from urllib import request, parse
 from myTools import mySql
 import os
+import time
 
 baseUrl = "http://www.xiaohonglouss.com/"
 dataList = []
@@ -24,14 +24,23 @@ def askUrl(url):
     try:
         response = request.urlopen(req)
     except urllib.error.URLError as e:
-        print(e.code)
+        print(e)
+    except ConnectionResetError as e:
+        print(e)
+    except UnboundLocalError as e:
+        print(e)
     return response
 
 
 def getData():
     # print("开始获取页面链接")
-    getPageLinks()
-    # getPostContents()
+    # getPageLinks()
+    while True:
+        result = getPostContents()
+        if not result:
+            time.sleep(5)
+        else:
+            print("搞定")
 
 
 def getPageLinks():
@@ -42,7 +51,7 @@ def getPageLinks():
     pageCount = re.findall(findPageCount, str(soup))
     pageCount = int(pageCount[0].strip())
     pageLinks = []
-    for i in range(0, pageCount):
+    for i in range(6, 51):
         link = baseUrl + "forum.php?mod=forumdisplay&fid=45&page=" + str(i + 1)
         print(link)
         pageLinks.append(link)
@@ -58,6 +67,7 @@ def getPostLinks(pageLinks):
         findPostId = re.compile(r'<tbody id="normalthread_(.*)">')
         postId = re.findall(findPostId, str(soup))
         postIds.extend(postId)
+        print(pageLink)
         print(postId)
         insertPostIdsToDatabase(postId)
     return postIds
@@ -80,10 +90,18 @@ def getPostContents():
     basePostUrl = "http://www.xiaohonglouss.com/forum.php?mod=viewthread&tid="
     for postId in postIds:
         url = basePostUrl + postId[0]
-        html = askUrl(url)
+        try:
+            html = askUrl(url)
+        except urllib.error.URLError as e:
+            print(e)
+            return False
+        except ConnectionResetError as e:
+            print(e)
+            return False
         soup = BeautifulSoup(html, "html.parser")
         content = [postId[0], soup]
         processPostContents(content)
+    return True
 
 
 def processPostContents(content):
@@ -109,14 +127,14 @@ def getInfo(postId, soup):
     keyPoint = getSpecifiedPattern(soup, r'【重点推荐】：(.*)<br/>')
     detail = getSpecifiedPattern(soup, r'【验证细节】：(.*)<br/>')
     downloadImg(postId, soup)
-    print(postId)
-    print(title)
-    print(date)
-    print(location)
-    print(env)
-    print(price)
-    print(keyPoint)
-    print(detail)
+    # print(postId)
+    # print(title)
+    # print(date)
+    # print(location)
+    # print(env)
+    # print(price)
+    # print(keyPoint)
+    # print(detail)
     print("=============================")
     sql = "insert into POST_CONTENT(post_id,title,date,location,env,price,keypoint,detail) values('" \
           + postId + "','" \
@@ -154,7 +172,12 @@ def downloadImg(postId, soup):
         filePath = "./imgs/" + postId + "/"
         if not os.path.exists(filePath):
             os.mkdir(filePath)
-        request.urlretrieve(imgLink, filePath + postId + "_" + str(i) + ".jpg")
+        try:
+            request.urlretrieve(imgLink, filePath + postId + "_" + str(i) + ".jpg")
+        except urllib.error.URLError as e:
+            print(e.code)
+        except ConnectionResetError as e:
+            print(e)
 
 
 if __name__ == '__main__':
