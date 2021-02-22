@@ -12,6 +12,7 @@ import time
 
 baseUrl = "http://www.xiaohonglouss.com/"
 dataList = []
+markdownFile = "info.md"
 
 
 def askUrl(url):
@@ -83,7 +84,6 @@ def insertPostIdsToDatabase(postIds):
 
 
 def getPostContents():
-    contents = []
     conn = mySql.MyPythonSql()
     postIds = conn.query("select post_id from POST_ID where is_download = '0'")
     conn.close()
@@ -180,5 +180,46 @@ def downloadImg(postId, soup):
             print(e)
 
 
+def makeMarkdown():
+    conn = mySql.MyPythonSql()
+    postContents = conn.query("select post_id,title,date,location,env,price,keypoint,detail from POST_CONTENT")
+    conn.close()
+    if os.path.exists(markdownFile):
+        os.remove(markdownFile)
+    fo = open(markdownFile, 'w')
+    for postContent in postContents:
+        writeMarkdown(fo, postContent)
+    fo.close()
+
+
+def writeMarkdown(fo, postContent):
+    print(postContent[0])
+    content = "## " + "".join(postContent[0].split()) + "  --  " + "".join(postContent[1].split()) + "\n" \
+              + "**日期** : " + "".join(postContent[2].split()) + "\n" \
+              + "**地点** : " + "".join(postContent[3].split()) + "\n" \
+              + "**环境** : " + "".join(postContent[4].split()) + "\n" \
+              + "**价格** : " + "".join(postContent[5].split()) + "\n" \
+              + "**关键** : " + "".join(postContent[6].split()) + "\n" \
+              + "**细节** : " + "".join(postContent[7].split()) + "\n"
+    imgList = getImgList(postContent[0])
+    for imgPath in imgList:
+        content += "![](" + imgPath + ")\n"
+    content += "\n\n\n"
+    fo.write(content)
+
+
+def getImgList(postId):
+    path = "./imgs/" + postId + "/"
+    if os.path.exists(path):
+        pathList = []
+        relativePath = os.listdir(path)
+        for fileName in relativePath:
+            pathList.append(path + fileName)
+        return pathList
+    else:
+        return []
+
+
 if __name__ == '__main__':
-    getData()
+    # getData()
+    makeMarkdown()
