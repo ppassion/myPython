@@ -43,7 +43,6 @@ class MyPythonSql:
             self.conn.rollback()
             return "update failed"
 
-
     def close(self):
         self.conn.close()
 
