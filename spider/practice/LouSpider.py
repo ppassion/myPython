@@ -10,9 +10,10 @@ from myTools import mySql
 import os
 import time
 
-baseUrl = "http://www.xiaohonglouss.com/"
+baseUrl = "http://www.xiaohongloubb.com/"
+provinceId = '36'
 dataList = []
-markdownFile = "info.md"
+markdownFile = "info_" + provinceId + ".md"
 
 
 def askUrl(url):
@@ -35,7 +36,6 @@ def askUrl(url):
 
 def getData():
     # print("开始获取页面链接")
-    # getPageLinks()
     while True:
         result = getPostContents()
         if not result:
@@ -45,15 +45,15 @@ def getData():
 
 
 def getPageLinks():
-    url = baseUrl + "forum.php?mod=forumdisplay&fid=45"
+    url = baseUrl + "forum.php?mod=forumdisplay&fid=" + provinceId
     html = askUrl(url)
     soup = BeautifulSoup(html, "html.parser")
     findPageCount = re.compile(r'<span title="共(.*?)页"')
     pageCount = re.findall(findPageCount, str(soup))
     pageCount = int(pageCount[0].strip())
     pageLinks = []
-    for i in range(6, 51):
-        link = baseUrl + "forum.php?mod=forumdisplay&fid=45&page=" + str(i + 1)
+    for i in range(0, pageCount):
+        link = baseUrl + "forum.php?mod=forumdisplay&fid=" + provinceId + "&page=" + str(i + 1)
         print(link)
         pageLinks.append(link)
     getPostLinks(pageLinks)
@@ -75,10 +75,10 @@ def getPostLinks(pageLinks):
 
 
 def insertPostIdsToDatabase(postIds):
-    baseSql = "insert into POST_ID(post_id,is_download) values('"
+    baseSql = "insert into POST_ID(post_id,is_download,province_id) values('"
     conn = mySql.MyPythonSql()
     for postId in postIds:
-        sql = baseSql + postId + "', '0')"
+        sql = baseSql + postId + "', '0', '" + provinceId + "')"
         conn.insert(sql=sql)
     conn.close()
 
@@ -221,5 +221,6 @@ def getImgList(postId):
 
 
 if __name__ == '__main__':
+    getPageLinks()
     # getData()
-    makeMarkdown()
+    # makeMarkdown()
