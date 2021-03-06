@@ -17,13 +17,13 @@ class MyPythonSql:
         self.cursor = cursor
 
     def query(self, sql):
-        print(sql)
+        # print(sql)
         self.cursor.execute(sql)
         return self.cursor.fetchall()
 
     def insert(self, sql):
         # noinspection PyBroadException
-        print(sql)
+        # print(sql)
         try:
             self.cursor.execute(sql)
             self.conn.commit()
@@ -34,7 +34,7 @@ class MyPythonSql:
 
     def update(self, sql):
         # noinspection PyBroadException
-        print(sql)
+        # print(sql)
         try:
             self.cursor.execute(sql)
             self.conn.commit()

@@ -2,11 +2,12 @@
 # Author : chyh
 # Date   : 2021/2/14 22:14
 
-import re
-from sklearn import datasets
+import time
 
 if __name__ == '__main__':
-    # string = '<font color="#333333"><font color="#333333"><font style="font-size:16px">'
-    # print(string.replace(r"<font[.*]>", ''))
-    # print(re.sub(r"<font.*>", '', string))
-    datasets.load_iris()
+    time1 = time.time()
+    print(time1)
+    time.sleep(3)
+    time2 = time.time()
+    print(time2)
+    print(int(time2-time1))
