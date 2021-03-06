@@ -5,9 +5,7 @@
 import time
 
 if __name__ == '__main__':
-    time1 = time.time()
-    print(time1)
-    time.sleep(3)
-    time2 = time.time()
-    print(time2)
-    print(int(time2-time1))
+    posts = "98849  98880  98842  98857  98859  98870  94591  94613  94604  88694  " \
+            "88709  88710  88706  14025  45342  67665  67658  59203  59171  52267  " \
+            "57507  57363  45275  52262  52428  52283  45303 "
+

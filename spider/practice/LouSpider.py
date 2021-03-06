@@ -5,16 +5,18 @@
 
 from bs4 import BeautifulSoup
 import re
-import urllib
 from urllib import request, parse
 from myTools import mySql
 import os
 import time
 import shutil
 import socket
+import yaml
 
-baseUrl = "http://www.xiaohongloubb.com/"
-provinceId = '36'
+configFile = open("urlInfo.yml", 'r', encoding='utf-8')
+config = configFile.read()
+configMap = yaml.load(config, Loader=yaml.FullLoader)
+provinceId = '45'
 dataList = []
 markdownFile = "info_" + provinceId + ".md"
 somethingHappened = False
@@ -79,15 +81,14 @@ def getData():
 
 
 def getPageLinks():
-    url = baseUrl + "forum.php?mod=forumdisplay&fid=" + provinceId
-    html = askUrl(url)
-    soup = BeautifulSoup(html, "html.parser")
+    url = configMap["pageBaseUrl"] + provinceId
+    soup = askUrl(url)
     findPageCount = re.compile(r'<span title="共(.*?)页"')
     pageCount = re.findall(findPageCount, str(soup))
     pageCount = int(pageCount[0].strip())
     print("共有" + str(pageCount) + "页")
     for i in range(0, pageCount):
-        pageLink = baseUrl + "forum.php?mod=forumdisplay&fid=" + provinceId + "&page=" + str(i + 1)
+        pageLink = configMap["pageBaseUrl"] + provinceId + "&page=" + str(i + 1)
         print(pageLink)
         getPostLinks(pageLink)
 
@@ -97,13 +98,12 @@ def getPostLinks(pageLink):
     postIds = []
     while True:
         somethingHappened = False
-        html = askUrl(pageLink)
+        soup = askUrl(pageLink)
         if somethingHappened:
             # print("出事了,等5秒")
             time.sleep(5)
         else:
             break
-    soup = BeautifulSoup(html, "html.parser")
     findPostId = re.compile(r'<tbody id="normalthread_(.*)">')
     postId = re.findall(findPostId, str(soup))
     postIds.extend(postId)
@@ -124,13 +124,12 @@ def getPostContents():
     conn = mySql.MyPythonSql()
     postIds = conn.query("select post_id from POST_ID where is_download = '0'")
     conn.close()
-    basePostUrl = baseUrl + "forum.php?mod=viewthread&tid="
     print("共有" + str(len(postIds)) + "个帖子需要解析")
     size = len(postIds)
     for i in range(0, size):
         startTime = time.time()
         postId = postIds[i][0]
-        url = basePostUrl + postId
+        url = configMap["postBaseUrl"] + postId
         while True:
             somethingHappened = False
             soup = askUrl(url)
@@ -199,7 +198,7 @@ def downloadImg(postId, soup):
     imgList = []
     for item in soup.find_all("img", class_="zoom"):
         file = item['file']
-        imgLink = baseUrl + file
+        imgLink = configMap["baseUrl"] + file
         imgList.append(imgLink)
     filePath = "./imgs/" + postId + "/"
     if os.path.exists(filePath):
@@ -260,4 +259,4 @@ def getImgList(postId):
 if __name__ == '__main__':
     # getPageLinks()
     getData()
-    # makeMarkdown()
+    makeMarkdown()

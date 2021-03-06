@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 /spider/practice/imgs/
 /spider/practice/info.md
+/spider/practice/urlInfo.yml
