@@ -222,7 +222,7 @@ def makeMarkdown():
     conn = mySql.MyPythonSql()
     postContents = conn.query(
         "select post_id,title,date,location,env,price,keypoint,detail from POST_CONTENT "
-        "where province = '" + provinceId + "'")
+        "where post_id in (select post_id from POST_ID where province = '" + provinceId + "')")
     conn.close()
     if os.path.exists(markdownFile):
         os.remove(markdownFile)
@@ -263,6 +263,6 @@ def getImgList(postId):
 if __name__ == '__main__':
     print("开始时间 " + time.strftime("%H:%M:%S"))
     # getPageLinks()
-    getData()
-    # makeMarkdown()
+    # getData()
+    makeMarkdown()
     print("结束时间 " + time.strftime("%H:%M:%S"))

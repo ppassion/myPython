@@ -10,32 +10,40 @@ import yaml
 import math
 
 socket.setdefaulttimeout(10)
+groupCount = 20
 
 
 def genProxies(url):
-
+    global groupCount
     res = requests.get(url="http://127.0.0.1:8080/get_all")
     proxyIps = eval(res.text)['proxies']
     size = len(proxyIps)
     print("共有" + str(size) + "个IP")
-    groupCount = 5
     groupSize = math.ceil(size / groupCount)
     print("共有" + str(groupCount) + "个组")
-    splitArrays = list(chunks(proxyIps, groupCount))
+    splitArrays = list(chunks(proxyIps, groupSize))
     try:
-        _thread.start_new_thread(cycleAsk, ("Thread-1", splitArrays[0], url))
-        _thread.start_new_thread(cycleAsk, ("Thread-2", splitArrays[1], url))
-        _thread.start_new_thread(cycleAsk, ("Thread-3", splitArrays[2], url))
-        _thread.start_new_thread(cycleAsk, ("Thread-4", splitArrays[3], url))
-        _thread.start_new_thread(cycleAsk, ("Thread-5", splitArrays[4], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-1", splitArrays[0], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-2", splitArrays[1], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-3", splitArrays[2], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-4", splitArrays[3], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-5", splitArrays[4], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-6", splitArrays[5], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-7", splitArrays[6], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-8", splitArrays[7], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-9", splitArrays[8], url))
+        # _thread.start_new_thread(cycleAsk, ("Thread-10", splitArrays[9], url))
+        for i in range(0, groupCount):
+            _thread.start_new_thread(cycleAsk, ("Thread-" + str(i + 1), splitArrays[i], url))
     except:
+        groupCount = groupCount - 1
         print("Error: 无法启动线程")
-    while 1:
+    while groupCount > 10:
         pass
 
 
 def cycleAsk(threadName, proxyGroup, url):
-    print(threadName)
+    global groupCount
     size = len(proxyGroup)
     for i in range(0, size):
         ip = proxyGroup[i]
@@ -43,7 +51,10 @@ def cycleAsk(threadName, proxyGroup, url):
             "http": ip
         }
         askUrl(url, proxies)
-        print(threadName + " 第" + str(i + 1) + "个IP " + ip + " 完成")
+        # print(threadName + " 第" + str(i + 1) + "个IP " + ip + " 完成")
+    print(threadName + "全部结束")
+    groupCount = groupCount - 1
+    print(groupCount)
 
 
 def askUrl(url, proxies):
@@ -78,4 +89,8 @@ if __name__ == '__main__':
     configFile = open("../practice/urlInfo.yml", 'r', encoding='utf-8')
     config = configFile.read()
     configMap = yaml.load(config, Loader=yaml.FullLoader)
-    genProxies(configMap["spreadUrl"])
+    while True:
+        genProxies(configMap["spreadUrl"])
+        print("============================")
+        time.sleep(5)
+        groupCount = 20
