@@ -91,7 +91,7 @@ def saveDataToExcel():
 
 
 def saveDataToSqlLite():
-    conn = sqlite3.connect(".\\files\\test.db")
+    conn = sqlite3.connect("../files/test.db")
     print("sss")
 
 

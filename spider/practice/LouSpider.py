@@ -203,9 +203,9 @@ def downloadImg(postId, soup):
             imgLink = configMap["baseUrl"] + file
             imgList.append(imgLink)
     filePath = "./imgs/" + postId + "/"
-    if os.path.exists(filePath):
-        shutil.rmtree(filePath)
-    os.mkdir(filePath)
+    if len(imgList) > 0:
+        if not os.path.exists(filePath):
+            os.mkdir(filePath)
     for i in range(1, len(imgList) + 1):
         imgLink = imgList[i - 1]
         while True:
