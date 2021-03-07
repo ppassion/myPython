@@ -16,7 +16,7 @@ import yaml
 configFile = open("urlInfo.yml", 'r', encoding='utf-8')
 config = configFile.read()
 configMap = yaml.load(config, Loader=yaml.FullLoader)
-provinceId = '45'
+provinceId = '36'
 dataList = []
 markdownFile = "info_" + provinceId + ".md"
 somethingHappened = False
@@ -122,7 +122,8 @@ def insertPostIdsToDatabase(postIds):
 def getPostContents():
     global somethingHappened
     conn = mySql.MyPythonSql()
-    postIds = conn.query("select post_id from POST_ID where is_download = '0'")
+    postIds = conn.query("select post_id from POST_ID where is_download = '0' and province = '" + provinceId + "'")
+    # postIds = conn.query("select post_id from POST_ID where post_id = '3865'")
     conn.close()
     print("共有" + str(len(postIds)) + "个帖子需要解析")
     size = len(postIds)
@@ -197,9 +198,10 @@ def downloadImg(postId, soup):
     global somethingHappened
     imgList = []
     for item in soup.find_all("img", class_="zoom"):
-        file = item['file']
-        imgLink = configMap["baseUrl"] + file
-        imgList.append(imgLink)
+        if item.attrs.__contains__('file'):
+            file = item['file']
+            imgLink = configMap["baseUrl"] + file
+            imgList.append(imgLink)
     filePath = "./imgs/" + postId + "/"
     if os.path.exists(filePath):
         shutil.rmtree(filePath)
@@ -218,7 +220,9 @@ def downloadImg(postId, soup):
 
 def makeMarkdown():
     conn = mySql.MyPythonSql()
-    postContents = conn.query("select post_id,title,date,location,env,price,keypoint,detail from POST_CONTENT")
+    postContents = conn.query(
+        "select post_id,title,date,location,env,price,keypoint,detail from POST_CONTENT "
+        "where province = '" + provinceId + "'")
     conn.close()
     if os.path.exists(markdownFile):
         os.remove(markdownFile)
@@ -257,6 +261,8 @@ def getImgList(postId):
 
 
 if __name__ == '__main__':
+    print("开始时间 " + time.strftime("%H:%M:%S"))
     # getPageLinks()
     getData()
-    makeMarkdown()
+    # makeMarkdown()
+    print("结束时间 " + time.strftime("%H:%M:%S"))
