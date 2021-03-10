@@ -130,3 +130,4 @@ dmypy.json
 /spider/practice/imgs/
 /spider/practice/info.md
 /spider/practice/urlInfo.yml
+/spider/practice/*.md
