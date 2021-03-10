@@ -3,11 +3,14 @@
 # Date   : 2021/3/8 20:37
 
 from spider.proxy.src.log.logger import logger
+from spider.proxy.src.db.DbOpt import dbOpt
 
 
 def run():
+    logger.warning('初始化sqlite数据库...')
     logger.info('初始化sqlite数据库...')
-    # sqlite_opt.init_db()
+    logger.error('初始化sqlite数据库...')
+    # dbOpt.create_table()
     # scheduler = BackgroundScheduler()
     # scheduler.add_job(crawl, 'interval', seconds=SPIDER['crawl_interval'])
     # scheduler.add_job(validator.run, 'interval', seconds=VALIDATOR['validate_interval'])

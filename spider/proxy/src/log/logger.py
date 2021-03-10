@@ -3,25 +3,36 @@
 # Date   : 2021/3/8 20:42
 
 import logging
+from spider.proxy.src.setting import log_color
 
 
-def get_logger():
-    """
-    创建日志单例
-    """
-    global logger
-    formatter = logging.Formatter("%(asctime)s %(name)s:%(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-    logger = logging.getLogger("monitor")
-    logger.setLevel(logging.INFO)
-    handler_stream = logging.StreamHandler()
-    handler_stream.setLevel(logging.INFO)
-    handler_stream.setFormatter(formatter)
-    handler_error = logging.FileHandler(filename="error.log", encoding="utf-8")
-    handler_error.setLevel(logging.ERROR)
-    handler_error.setFormatter(formatter)
-    logger.addHandler(handler_stream)
-    logger.addHandler(handler_error)
-    return logger
+class myLogger(object):
+    myLogger = None
+    stream_handler = logging.StreamHandler()
+    logging.basicConfig(level=logging.DEBUG)
+
+    def __init__(self):
+        self.myLogger = logging.getLogger("monitor")
+        self.myLogger.propagate = 0
+
+    def warning(self, message):
+        self.fontColor(log_color['yellow'], logging.WARNING)
+        self.myLogger.warning(message)
+
+    def info(self, message):
+        self.fontColor(log_color['white'], logging.INFO)
+        self.myLogger.info(message)
+
+    def error(self, message):
+        self.fontColor(log_color['red'], logging.ERROR)
+        self.myLogger.error(message)
+
+    def fontColor(self, color, level):
+        # 不同的日志输出不同的颜色
+        formatter = logging.Formatter(color + '[%(asctime)s] - [%(levelname)s] - %(message)s')
+        self.stream_handler.setLevel(level)
+        self.stream_handler.setFormatter(formatter)
+        self.myLogger.addHandler(self.stream_handler)
 
 
-logger = get_logger()
+logger = myLogger()
