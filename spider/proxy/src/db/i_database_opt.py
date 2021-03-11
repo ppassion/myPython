@@ -2,7 +2,7 @@
 # Author : chyh
 # Date   : 2021/3/9 22:12
 
-class IDbOpt(object):
+class i_database_opt(object):
 
     def add_proxy(self, proxy):
         raise NotImplementedError

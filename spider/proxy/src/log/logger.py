@@ -9,7 +9,7 @@ from spider.proxy.src.setting import log_color
 class myLogger(object):
     myLogger = None
     stream_handler = logging.StreamHandler()
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     def __init__(self):
         self.myLogger = logging.getLogger("monitor")
