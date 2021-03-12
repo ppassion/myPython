@@ -31,34 +31,37 @@ def askUrl(url):
     req = request.Request(url, data=data, headers=header, method="GET")
     soup = None
     somethingHappened = False
+    # noinspection PyBroadException
     try:
         response = request.urlopen(req)
         soup = BeautifulSoup(response, "html.parser")
-    except BaseException as e:
+    except BaseException:
         somethingHappened = True
-    except OSError as e:
+    except OSError:
         somethingHappened = True
-    except ConnectionResetError as e:
+    except ConnectionResetError:
         somethingHappened = True
     return soup, somethingHappened
 
 
 def retrieveUrl(imgLink, filePath):
     somethingHappened = False
+    # noinspection PyBroadException
     try:
         request.urlretrieve(imgLink, filePath)
-    except BaseException as e:
+    except BaseException:
         somethingHappened = True
-    except OSError as e:
+    except OSError:
         somethingHappened = True
-    except ConnectionResetError as e:
+    except ConnectionResetError:
         somethingHappened = True
     return somethingHappened
 
 
 def getData():
-    for i in range(0, 10):
-        _thread.start_new_thread(getPostContents, ("Thread-" + str(i + 1), str(i)))
+    threadCount = 10
+    for i in range(0, threadCount):
+        _thread.start_new_thread(getPostContents, ("Thread-" + str(i), str(i)))
     while True:
         pass
 
@@ -121,6 +124,7 @@ def getPostContents(threadName, tailNumber):
         endTime = time.time()
         print(threadName + " " + str(i + 1) + "/" + str(size) + "   " + postId +
               " 耗时" + str(int(endTime - startTime)) + "秒")
+    print(threadName + "结束啦啦啦" + '='*20)
 
 
 def processPostContents(content):
@@ -235,7 +239,10 @@ def getImgList(postId):
 
 if __name__ == '__main__':
     print("开始时间 " + time.strftime("%H:%M:%S"))
+    # 第一步 从第一页获取总页数，得到每一个目录页的链接，再依次访问目录链接，获取所有帖子链接
     # getPageLinks()
-    getData()
+    # 第二步 依次访问所有链接，以帖子id最后一位数划分，分10个线程执行，获取帖子具体内容，包括信息和图片，信息存入mysql，图片存到本地
+    # getData()
+    # 第三步 将信息和图片生产markdown
     makeMarkdown()
     print("结束时间 " + time.strftime("%H:%M:%S"))
