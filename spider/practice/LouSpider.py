@@ -9,22 +9,20 @@ from urllib import request, parse
 from myTools import mySql
 import os
 import time
-import shutil
 import socket
 import yaml
+import _thread
 
 configFile = open("urlInfo.yml", 'r', encoding='utf-8')
 config = configFile.read()
 configMap = yaml.load(config, Loader=yaml.FullLoader)
-provinceId = '36'
+provinceId = '46'
 dataList = []
 markdownFile = "info_" + provinceId + ".md"
-somethingHappened = False
 socket.setdefaulttimeout(10)
 
 
 def askUrl(url):
-    global somethingHappened
     header = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/88.0.4324.104 Safari/537.36 "
@@ -32,52 +30,37 @@ def askUrl(url):
     data = bytes(parse.urlencode({"hello": "world"}), encoding="utf-8")
     req = request.Request(url, data=data, headers=header, method="GET")
     soup = None
+    somethingHappened = False
     try:
         response = request.urlopen(req)
         soup = BeautifulSoup(response, "html.parser")
     except BaseException as e:
-        # print(url)
-        # print(e)
         somethingHappened = True
     except OSError as e:
-        # print(url)
-        # print(e)
         somethingHappened = True
     except ConnectionResetError as e:
-        # print(url)
-        # print(e)
         somethingHappened = True
-    except socket.timeout as e:
-        # print(url)
-        # print(e)
-        somethingHappened = True
-    return soup
+    return soup, somethingHappened
 
 
 def retrieveUrl(imgLink, filePath):
-    global somethingHappened
+    somethingHappened = False
     try:
         request.urlretrieve(imgLink, filePath)
     except BaseException as e:
-        # print(imgLink)
-        # print(e)
         somethingHappened = True
     except OSError as e:
-        # print(imgLink)
-        # print(e)
         somethingHappened = True
     except ConnectionResetError as e:
-        # print(imgLink)
-        # print(e)
         somethingHappened = True
-    except socket.timeout as e:
-        # print(imgLink)
-        # print(e)
-        somethingHappened = True
+    return somethingHappened
 
 
 def getData():
-    getPostContents()
+    for i in range(0, 10):
+        _thread.start_new_thread(getPostContents, ("Thread-" + str(i + 1), str(i)))
+    while True:
+        pass
 
 
 def getPageLinks():
@@ -94,13 +77,10 @@ def getPageLinks():
 
 
 def getPostLinks(pageLink):
-    global somethingHappened
     postIds = []
     while True:
-        somethingHappened = False
-        soup = askUrl(pageLink)
+        soup, somethingHappened = askUrl(pageLink)
         if somethingHappened:
-            # print("出事了,等5秒")
             time.sleep(5)
         else:
             break
@@ -119,30 +99,27 @@ def insertPostIdsToDatabase(postIds):
     conn.close()
 
 
-def getPostContents():
-    global somethingHappened
+def getPostContents(threadName, tailNumber):
     conn = mySql.MyPythonSql()
-    postIds = conn.query("select post_id from POST_ID where is_download = '0' and province = '" + provinceId + "'")
-    # postIds = conn.query("select post_id from POST_ID where post_id = '3865'")
+    postIds = conn.query("select post_id from POST_ID where is_download = '0' and province = '" + provinceId +
+                         "' and post_id like '%" + tailNumber + "'")
     conn.close()
-    print("共有" + str(len(postIds)) + "个帖子需要解析")
+    print(threadName + "共有" + str(len(postIds)) + "个帖子需要解析")
     size = len(postIds)
     for i in range(0, size):
         startTime = time.time()
         postId = postIds[i][0]
         url = configMap["postBaseUrl"] + postId
         while True:
-            somethingHappened = False
-            soup = askUrl(url)
+            soup, somethingHappened = askUrl(url)
             if somethingHappened:
-                # print("出事了,等5秒")
                 time.sleep(5)
             else:
                 break
         content = [postId, soup]
         processPostContents(content)
         endTime = time.time()
-        print(str(i + 1) + "/" + str(size) + "   " + postId +
+        print(threadName + " " + str(i + 1) + "/" + str(size) + "   " + postId +
               " 耗时" + str(int(endTime - startTime)) + "秒")
 
 
@@ -160,7 +137,6 @@ def processPostContents(content):
 
 
 def getInfo(postId, soup):
-    # print("获取帖子具体信息" + postId)
     title = getSpecifiedPattern(soup, r'<span id="thread_subject">(.*?)</span>')
     date = getSpecifiedPattern(soup, r'【验证时间】：(.*)<br/>')
     location = getSpecifiedPattern(soup, r'【验证地点】：(.*)<br/>')
@@ -195,7 +171,6 @@ def getSpecifiedPattern(soup, example):
 
 
 def downloadImg(postId, soup):
-    global somethingHappened
     imgList = []
     for item in soup.find_all("img", class_="zoom"):
         if item.attrs.__contains__('file'):
@@ -209,10 +184,8 @@ def downloadImg(postId, soup):
     for i in range(1, len(imgList) + 1):
         imgLink = imgList[i - 1]
         while True:
-            somethingHappened = False
-            retrieveUrl(imgLink, filePath + postId + "_" + str(i) + ".jpg")
+            somethingHappened = retrieveUrl(imgLink, filePath + postId + "_" + str(i) + ".jpg")
             if somethingHappened:
-                # print("出事了,等5秒")
                 time.sleep(5)
             else:
                 break
@@ -263,6 +236,6 @@ def getImgList(postId):
 if __name__ == '__main__':
     print("开始时间 " + time.strftime("%H:%M:%S"))
     # getPageLinks()
-    # getData()
+    getData()
     makeMarkdown()
     print("结束时间 " + time.strftime("%H:%M:%S"))
