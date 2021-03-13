@@ -11,12 +11,12 @@ import os
 import time
 import socket
 import yaml
-import _thread
+import threading
 
 configFile = open("urlInfo.yml", 'r', encoding='utf-8')
 config = configFile.read()
 configMap = yaml.load(config, Loader=yaml.FullLoader)
-provinceId = '46'
+provinceId = '47'
 dataList = []
 markdownFile = "info_" + provinceId + ".md"
 socket.setdefaulttimeout(10)
@@ -60,10 +60,45 @@ def retrieveUrl(imgLink, filePath):
 
 def getData():
     threadCount = 10
+    threads = []
     for i in range(0, threadCount):
-        _thread.start_new_thread(getPostContents, ("Thread-" + str(i), str(i)))
-    while True:
-        pass
+        thread = getDataThread(str(i))
+        threads.append(thread)
+        thread.start()
+    for thread in threads:
+        thread.join()
+    print("结束")
+
+
+class getDataThread(threading.Thread):
+    def __init__(self, tailNumber):
+        threading.Thread.__init__(self)
+        self.threadName = "Thread-" + tailNumber
+        self.tailNumber = tailNumber
+
+    def run(self) -> None:
+        conn = mySql.MyPythonSql()
+        postIds = conn.query("select post_id from POST_ID where is_download = '0' and province = '" + provinceId +
+                             "' and post_id like '%" + self.tailNumber + "'")
+        conn.close()
+        print(self.threadName + "共有" + str(len(postIds)) + "个帖子需要解析")
+        size = len(postIds)
+        for i in range(0, size):
+            startTime = time.time()
+            postId = postIds[i][0]
+            url = configMap["postBaseUrl"] + postId
+            while True:
+                soup, somethingHappened = askUrl(url)
+                if somethingHappened:
+                    time.sleep(5)
+                else:
+                    break
+            content = [postId, soup]
+            processPostContents(content)
+            endTime = time.time()
+            print(self.threadName + " " + str(i + 1) + "/" + str(size) + "   " + postId +
+                  " 耗时" + str(int(endTime - startTime)) + "秒")
+        print(self.threadName + "结束啦啦啦" + '=' * 20)
 
 
 def getPageLinks():
@@ -100,31 +135,6 @@ def insertPostIdsToDatabase(postIds):
         sql = baseSql + postId + "', '0', '" + provinceId + "')"
         conn.insert(sql=sql)
     conn.close()
-
-
-def getPostContents(threadName, tailNumber):
-    conn = mySql.MyPythonSql()
-    postIds = conn.query("select post_id from POST_ID where is_download = '0' and province = '" + provinceId +
-                         "' and post_id like '%" + tailNumber + "'")
-    conn.close()
-    print(threadName + "共有" + str(len(postIds)) + "个帖子需要解析")
-    size = len(postIds)
-    for i in range(0, size):
-        startTime = time.time()
-        postId = postIds[i][0]
-        url = configMap["postBaseUrl"] + postId
-        while True:
-            soup, somethingHappened = askUrl(url)
-            if somethingHappened:
-                time.sleep(5)
-            else:
-                break
-        content = [postId, soup]
-        processPostContents(content)
-        endTime = time.time()
-        print(threadName + " " + str(i + 1) + "/" + str(size) + "   " + postId +
-              " 耗时" + str(int(endTime - startTime)) + "秒")
-    print(threadName + "结束啦啦啦" + '='*20)
 
 
 def processPostContents(content):
@@ -203,7 +213,7 @@ def makeMarkdown():
     conn.close()
     if os.path.exists(markdownFile):
         os.remove(markdownFile)
-    fo = open(markdownFile, 'w')
+    fo = open(markdownFile, 'w', encoding='utf-8')
     for postContent in postContents:
         writeMarkdown(fo, postContent)
     fo.close()

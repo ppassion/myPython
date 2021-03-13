@@ -24,6 +24,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\spider\practice\createTable.sql">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\spider\study\thread.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\study\test.py">
           <value>
             <Attribute>
