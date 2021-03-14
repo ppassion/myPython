@@ -16,10 +16,10 @@ import threading
 configFile = open("urlInfo.yml", 'r', encoding='utf-8')
 config = configFile.read()
 configMap = yaml.load(config, Loader=yaml.FullLoader)
-provinceId = '47'
-dataList = []
+provinceId = '37'
 markdownFile = "info_" + provinceId + ".md"
 socket.setdefaulttimeout(10)
+finishedList = []
 
 
 def askUrl(url):
@@ -67,6 +67,7 @@ def getData():
         thread.start()
     for thread in threads:
         thread.join()
+        print("已结束的线程 " + finishedList)
     print("结束")
 
 
@@ -99,6 +100,7 @@ class getDataThread(threading.Thread):
             print(self.threadName + " " + str(i + 1) + "/" + str(size) + "   " + postId +
                   " 耗时" + str(int(endTime - startTime)) + "秒")
         print(self.threadName + "结束啦啦啦" + '=' * 20)
+        finishedList.append(self.tailNumber)
 
 
 def getPageLinks():
@@ -250,9 +252,9 @@ def getImgList(postId):
 if __name__ == '__main__':
     print("开始时间 " + time.strftime("%H:%M:%S"))
     # 第一步 从第一页获取总页数，得到每一个目录页的链接，再依次访问目录链接，获取所有帖子链接
-    # getPageLinks()
+    getPageLinks()
     # 第二步 依次访问所有链接，以帖子id最后一位数划分，分10个线程执行，获取帖子具体内容，包括信息和图片，信息存入mysql，图片存到本地
-    # getData()
+    getData()
     # 第三步 将信息和图片生产markdown
     makeMarkdown()
     print("结束时间 " + time.strftime("%H:%M:%S"))
