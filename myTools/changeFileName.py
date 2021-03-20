@@ -16,3 +16,4 @@ if __name__ == '__main__':
     array = ["aa.mp4", "bb.rmvb"]
     for file in array:
         print(re.match('(.*?)\.', file))
+
