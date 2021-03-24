@@ -2,9 +2,12 @@
 # Author : chyh
 # Date   : 2021/3/10 23:44
 
+from spider.proxy.src.log.logger import logger
+
+
 class i_proxy_spider(object):
 
-    def __init__(self,name='unknown'):
+    def __init__(self, name='unknown'):
         self._name = name
         self._urls = self.get_urls()
 
@@ -12,4 +15,6 @@ class i_proxy_spider(object):
         raise NotImplementedError
 
     def crawl(self):
-        print(11)
+        logger.info(self._name + "开始爬取")
+        for url in self._urls:
+            print(11)
