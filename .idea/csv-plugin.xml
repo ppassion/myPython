@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\spider\study\generator.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\spider\study\thread.py">
           <value>
             <Attribute>
