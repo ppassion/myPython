@@ -4,14 +4,17 @@
 
 from spider.proxy.src.log.logger import logger
 from spider.proxy.src.db.database_opt import database_opt
+from spider.proxy.src.setting import external_proxies
+
+
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
 def crawl():
     proxies = []
-    # tasks = []
-    # for spider_name in SPIDER['list']:
-    #     tasks.append(spider_collection[spider_name].crawl())
+    tasks = []
+    for external_proxy in external_proxies:
+        tasks.append(spider_collection[spider_name].crawl())
     # loop = asyncio.new_event_loop()
     # asyncio.set_event_loop(loop)
     # results = loop.run_until_complete(asyncio.gather(*tasks))
@@ -29,8 +32,6 @@ def run():
     scheduler = BackgroundScheduler()
     # scheduler.add_job(f, 'interval', seconds=3)
     # scheduler.start()
-    # while True:
-    #     pass
     # scheduler.add_job(crawl, 'interval', seconds=SPIDER['crawl_interval'])
     # scheduler.add_job(validator.run, 'interval', seconds=VALIDATOR['validate_interval'])
     # scheduler.add_job(anonymity_validator.run, 'interval', seconds=ANONYMITY_VALIDATOR['interval'])

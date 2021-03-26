@@ -28,3 +28,18 @@ log_color = {
     'red': '\033[1;31m',
     'white': '\033[1;37m'
 }
+
+header = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/88.0.4324.104 Safari/537.36 "
+    }
+
+external_proxies = {
+    '66Ip',
+    'QuanWangIp',
+    'XiciIp',
+    'KuaiDaiLiIp',
+    'YunDaiLiIp',
+    'IpHaiIp',
+    'MianFeiDaiLiIp'
+}
