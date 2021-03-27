@@ -13,8 +13,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 def crawl():
     proxies = []
     tasks = []
-    for external_proxy in external_proxies:
-        tasks.append(spider_collection[spider_name].crawl())
+    # for external_proxy in external_proxies:
+        # tasks.append(spider_collection[spider_name].crawl())
     # loop = asyncio.new_event_loop()
     # asyncio.set_event_loop(loop)
     # results = loop.run_until_complete(asyncio.gather(*tasks))
