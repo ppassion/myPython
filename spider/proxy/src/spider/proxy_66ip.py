@@ -21,6 +21,9 @@ class proxy_66ip(i_proxy_spider):
         resolve_result = []
         soup = BeautifulSoup(res,'lxml')
         tr_list = soup.find('table', attrs={'width': '100%', 'bordercolor': '#6699ff'}).find_all('tr')
+        for tr in tr_list:
+            tds = tr.find_all('td')
+            print(tds)
         print(tr_list)
 
     def f(self):

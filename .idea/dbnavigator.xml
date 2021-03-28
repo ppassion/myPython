@@ -24,11 +24,16 @@
     <autoscroll-to-editor value="false" />
     <autoscroll-from-editor value="true" />
     <show-object-properties value="true" />
-    <loaded-nodes />
+    <loaded-nodes>
+      <connection connection-id="3b7421cb-c8de-446a-989c-41d6cbbfa2e8">
+        <schema name="main" object-types="constraint, table, view, index, column, dataset trigger" />
+      </connection>
+    </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="3b7421cb-c8de-446a-989c-41d6cbbfa2e8">
       <console name="Connection" type="STANDARD" schema="main" session="Main" />
+      <console name="proxy" type="STANDARD" schema="main" session="Main"><![CDATA[select * from proxy;]]></console>
     </connection>
     <connection id="66ed03fc-2378-406e-980b-aa544014d68b">
       <console name="spider" type="STANDARD" schema="spider" session="Main"><![CDATA[select * from POST_ID;

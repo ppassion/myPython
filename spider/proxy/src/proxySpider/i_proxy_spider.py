@@ -11,8 +11,8 @@ import asyncio
 
 class i_proxy_spider(object):
 
-    def __init__(self, name='unknown'):
-        self._name = name
+    def __init__(self):
+        print(1111)
 
     async def crawl(self):
         logger.info(self._name + "开始爬取")

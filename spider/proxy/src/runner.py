@@ -2,19 +2,25 @@
 # Author : chyh
 # Date   : 2021/3/8 20:37
 
-from spider.proxy.src.log.logger import logger
-from spider.proxy.src.db.database_opt import database_opt
-from spider.proxy.src.setting import external_proxies
+from log.logger import logger
+from db.database_opt import database_opt
+from setting import external_proxies
+from spider.proxy_kuaidaili import proxy_kuaidaili
 
-
+import asyncio
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
 def crawl():
-    proxies = []
     tasks = []
+    crawler = proxy_kuaidaili().crawl()
+    tasks.append(crawler)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    results = loop.run_until_complete(asyncio.gather(*tasks))
+    # loop.close()
     # for external_proxy in external_proxies:
-        # tasks.append(spider_collection[spider_name].crawl())
+    # tasks.append(spider_collection[spider_name].crawl())
     # loop = asyncio.new_event_loop()
     # asyncio.set_event_loop(loop)
     # results = loop.run_until_complete(asyncio.gather(*tasks))
@@ -29,7 +35,7 @@ def crawl():
 def run():
     logger.info("初始化数据库，调起定时任务")
     database_opt.create_table()
-    scheduler = BackgroundScheduler()
+    # scheduler = BackgroundScheduler()
     # scheduler.add_job(f, 'interval', seconds=3)
     # scheduler.start()
     # scheduler.add_job(crawl, 'interval', seconds=SPIDER['crawl_interval'])
@@ -38,3 +44,7 @@ def run():
     # scheduler.add_job(expiration_validator.run, 'interval', seconds=EXPIRATION_VALIDATOR['interval'])
     # scheduler.start()
     # app.run(host=WEB_SERVER['host'], port=WEB_SERVER['port'])
+
+
+if __name__ == '__main__':
+    crawl()
