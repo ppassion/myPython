@@ -3,21 +3,22 @@
 # Date   : 2021/3/8 21:01
 
 from spider.proxy.src.setting import database_info
-from spider.proxy.src.db.i_database_opt import i_database_opt
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from spider.proxy.src.log.logger import logger
 import sqlite3
 
 
-class database_opt(i_database_opt):
+class database_opt:
 
-    def __init__(self):
-        engine = create_engine('sqlite:///proxy.db')
+    def __init__(self) -> None:
+        engine = create_engine('sqlite:///proxy.db?check_same_thread=False',echo=True)
         self.db_session = sessionmaker(bind=engine)
 
-    def add_proxy(self, proxy):
-        pass
+    def add_proxy(self, new_proxy):
+        session = self.db_session()
+        session.add(new_proxy)
+        session.commit()
 
     def create_table(self):
         try:

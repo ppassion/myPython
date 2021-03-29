@@ -8,7 +8,8 @@ database_info = {
     'db_name': 'proxy.db',
     'ddl': '''
             create table if not exists proxy(
-            url varchar(36) not null,
+            ip varchar(20) not null,
+            port varchar(5) not null,
             source varchar(16), 
             supplier varchar(32),
             proxy_type tinyint(3), 
@@ -18,7 +19,7 @@ database_info = {
             last_check_time text,
             create_time text default (datetime(CURRENT_TIMESTAMP,'localtime')),
             reliability integer not null default 0 check(reliability >= 0) check(reliability <= 15),
-            PRIMARY KEY ("url")
+            PRIMARY KEY ("ip","port")
             )
             '''
 }

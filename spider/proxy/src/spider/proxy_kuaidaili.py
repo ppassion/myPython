@@ -3,6 +3,8 @@
 # Date   : 2021/3/27 22:01
 from typing import Iterable
 
+from bean.proxy_bean import proxy_bean
+from db.database_opt import database_opt
 from proxySpider.i_proxy_spider import i_proxy_spider
 from bs4 import BeautifulSoup
 
@@ -38,6 +40,7 @@ class proxy_kuaidaili(i_proxy_spider):
             ip = tds[0].text
             port = tds[1].text
             anonymity = tds[2].text
-            type = tds[3].text
+            proxy_type = tds[3].text
             updateTime = tds[6].text
-            print(updateTime)
+            new_proxy = proxy_bean(ip,port)
+            database_opt.add_proxy(new_proxy)

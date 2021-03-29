@@ -33,7 +33,27 @@
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="3b7421cb-c8de-446a-989c-41d6cbbfa2e8">
       <console name="Connection" type="STANDARD" schema="main" session="Main" />
-      <console name="proxy" type="STANDARD" schema="main" session="Main"><![CDATA[select * from proxy;]]></console>
+      <console name="proxy" type="STANDARD" schema="main" session="Main"><![CDATA[drop table proxy;
+
+select * from proxy;
+
+create table if not exists proxy(
+            ip varchar(20) not null,
+            port varchar(5) not null,
+            source varchar(16), 
+            supplier varchar(32),
+            proxy_type tinyint(3), 
+            proxy_cover tinyint(3), 
+            check_count int(10), 
+            region varchar(36), 
+            last_check_time text,
+            create_time text default (datetime(CURRENT_TIMESTAMP,'localtime')),
+            reliability integer not null default 0 check(reliability >= 0) check(reliability <= 15),
+            PRIMARY KEY ("ip","port")
+            );
+            
+            
+INSERT INTO proxy (ip, port) VALUES ('117.91.249.237', '9999');]]></console>
     </connection>
     <connection id="66ed03fc-2378-406e-980b-aa544014d68b">
       <console name="spider" type="STANDARD" schema="spider" session="Main"><![CDATA[select * from POST_ID;
