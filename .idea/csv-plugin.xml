@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\spider\proxy\src\bean\proxy_bean.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\spider\proxy\src\db\database_opt.py">
           <value>
             <Attribute>
