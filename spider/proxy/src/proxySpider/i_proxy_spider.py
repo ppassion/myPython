@@ -3,7 +3,7 @@
 # Date   : 2021/3/10 23:44
 
 from spider.proxy.src.log.logger import logger
-from spider.proxy.src.setting import header
+from common.setting import header
 
 import aiohttp
 import asyncio
@@ -15,18 +15,17 @@ class i_proxy_spider(object):
         print(1111)
 
     async def crawl(self):
-        logger.info(self._name + "开始爬取")
+        logger.info('==' + self._name + "==开始爬取")
         resolve_list = []
         try:
             for url in self.get_page_urls():
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url=url, headers=header) as res:
-                        # res.charset = self.get_encoding()
                         resolve = self.do_resolve(await res.text())
                         resolve_list.extend(resolve)
                         await asyncio.sleep(self.get_interval())
         except Exception as e:
-            logger.error(self._name + "爬取失败")
+            logger.error('==' + self._name + "==爬取失败")
             logger.error(e)
         return resolve_list
 

@@ -7,7 +7,7 @@ from enum import Enum, unique
 
 @unique
 class proxy_type_enum(Enum):
-    UNKNOWN = 0
-    HTTP = 1
-    HTTPS = 2
-    HTTP_AND_HTTPS = 3
+    UNKNOWN = 'unknown'
+    HTTP = 'http'
+    HTTPS = 'https'
+    HTTP_AND_HTTPS = 'both'

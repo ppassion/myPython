@@ -9,24 +9,10 @@ Base = declarative_base()
 
 
 class proxy_bean(Base):
-    '''
-                create table if not exists proxy(
-                ip varchar(20) not null,
-                port varchar(5) not null,
-                source varchar(50),
-                supplier varchar(32),
-                proxy_type tinyint(3),
-                proxy_cover tinyint(3),
-                check_count int(10),
-                region varchar(36),
-                last_check_time text,
-                create_time text default (datetime(CURRENT_TIMESTAMP,'localtime')),
-                reliability integer not null default 0 check(reliability >= 0) check(reliability <= 15),
-                PRIMARY KEY ("ip","port")
-                )
 
-                '''
+    # 默认的表名
     __tablename__ = 'proxy'
+
     ip = Column(String(20), primary_key=True)
     port = Column(String(5))
 
@@ -38,10 +24,18 @@ class proxy_bean(Base):
 
     # 代理类型
     proxy_type = Column(Integer())
-    proxy_cover = Column(String(50))
-    check_count = Column(String(50))
-    region = Column(String(50))
 
-    def __init__(self, ip, port):
+    # 代理匿名类型
+    proxy_cover = Column(String(50))
+
+    # 有效性检验的次数
+    # check_count = Column(String(50))
+    # region = Column(String(50))
+
+    def __init__(self, ip, port, source, supplier, proxy_type, proxy_cover):
         self.ip = ip
         self.port = port
+        self.source = source
+        self.supplier = supplier
+        self.proxy_type = proxy_type
+        self.proxy_cover = proxy_cover

@@ -2,10 +2,13 @@
 # Author : chyh
 # Date   : 2021/3/8 21:01
 
-from spider.proxy.src.setting import database_info
+from common.setting import database_info
+from spider.proxy.src.log.logger import logger
+
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from spider.proxy.src.log.logger import logger
+from sqlalchemy.exc import IntegrityError
 import sqlite3
 
 
@@ -18,7 +21,12 @@ class database_opt:
     def add_proxy(self, new_proxy):
         session = self.db_session()
         session.add(new_proxy)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError as e:
+            logger.warning(new_proxy.ip + ':' + new_proxy.port + "已存在")
+        finally:
+            session.close()
 
     def create_table(self):
         try:

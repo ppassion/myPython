@@ -4,11 +4,9 @@
 
 from log.logger import logger
 from db.database_opt import database_opt
-from setting import external_proxies
 from spider.proxy_kuaidaili import proxy_kuaidaili
 
 import asyncio
-from apscheduler.schedulers.background import BackgroundScheduler
 
 
 def crawl():
@@ -47,5 +45,5 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    # run()
     crawl()
