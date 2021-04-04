@@ -5,7 +5,6 @@
 from common.setting import database_info
 from spider.proxy.src.log.logger import logger
 
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
@@ -15,7 +14,7 @@ import sqlite3
 class database_opt:
 
     def __init__(self) -> None:
-        engine = create_engine('sqlite:///proxy.db?check_same_thread=False',echo=True)
+        engine = create_engine('sqlite:///proxy.db?check_same_thread=False', echo=True)
         self.db_session = sessionmaker(bind=engine)
 
     def add_proxy(self, new_proxy):
