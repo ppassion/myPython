@@ -20,12 +20,15 @@ class database_opt:
     def add_proxy(self, new_proxy):
         session = self.db_session()
         session.add(new_proxy)
+        result = 0
         try:
             session.commit()
         except IntegrityError as e:
             logger.warning(new_proxy.ip + ':' + new_proxy.port + "已存在")
+            result = 1
         finally:
             session.close()
+        return result
 
     def create_table(self):
         try:

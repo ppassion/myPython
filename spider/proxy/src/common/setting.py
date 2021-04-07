@@ -45,4 +45,4 @@ external_proxies = {
     'MianFeiDaiLiIp'
 }
 
-available_days = 15
+available_days = 30

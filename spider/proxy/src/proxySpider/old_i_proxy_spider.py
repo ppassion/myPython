@@ -9,18 +9,18 @@ import aiohttp
 import asyncio
 
 
-class i_proxy_spider(object):
+class old_i_proxy_spider(object):
 
-    def crawl(self):
+    async def crawl(self):
         logger.info('==' + self._name + "==开始爬取")
         resolve_list = []
         try:
             for url in self.get_page_urls():
-                session = aiohttp.ClientSession()
-                res = session.get(url=url, headers=header)
-                resolve = self.do_resolve(await res.text())
-                resolve_list.extend(resolve)
-                asyncio.sleep(self.get_interval())
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url=url, headers=header) as res:
+                        resolve = self.do_resolve(await res.text())
+                        resolve_list.extend(resolve)
+                        await asyncio.sleep(self.get_interval())
         except Exception as e:
             logger.error('==' + self._name + "==爬取失败")
             logger.error(e)
@@ -31,12 +31,12 @@ class i_proxy_spider(object):
         raise NotImplementedError
 
     def get_encoding(self):
-        raise NotImplementedError
         return 'utf-8'
+        raise NotImplementedError
 
     def do_resolve(self, res) -> list:
         raise NotImplementedError
 
     def get_interval(self) -> int:
-        raise NotImplementedError
         return 5
+        raise NotImplementedError
