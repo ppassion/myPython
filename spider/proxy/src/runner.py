@@ -4,18 +4,21 @@
 
 from log.logger import logger
 from db.database_opt import database_opt
+from proxySpider.i_proxy_spider import i_proxy_spider
 from spider.proxy_kuaidaili import proxy_kuaidaili
 
 import asyncio
 
 
 def crawl():
-    tasks = []
-    crawler = proxy_kuaidaili().crawl()
-    tasks.append(crawler)
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    results = loop.run_until_complete(asyncio.gather(*tasks))
+    kuaidaili = proxy_kuaidaili()
+    kuaidaili.crawl()
+    # tasks = []
+    # crawler = proxy_kuaidaili().crawl()
+    # tasks.append(crawler)
+    # loop = asyncio.new_event_loop()
+    # asyncio.set_event_loop(loop)
+    # results = loop.run_until_complete(asyncio.gather(*tasks))
     # loop.close()
     # for external_proxy in external_proxies:
     # tasks.append(spider_collection[spider_name].crawl())

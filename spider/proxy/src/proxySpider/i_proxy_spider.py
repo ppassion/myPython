@@ -5,22 +5,46 @@
 from spider.proxy.src.log.logger import logger
 from common.setting import header
 
-import aiohttp
 import asyncio
+from urllib import request, parse
+from bs4 import BeautifulSoup
+import time
 
 
 class i_proxy_spider(object):
+
+    def askUrl(self, url):
+        data = bytes(parse.urlencode({"hello": "world"}), encoding="utf-8")
+        req = request.Request(url, data=data, headers=header, method="GET")
+        soup = None
+        somethingHappened = False
+        # noinspection PyBroadException
+        try:
+            response = request.urlopen(req)
+            # soup = BeautifulSoup(response, "html.parser")
+        except BaseException:
+            somethingHappened = True
+        except OSError:
+            somethingHappened = True
+        except ConnectionResetError:
+            somethingHappened = True
+        return response, somethingHappened
 
     def crawl(self):
         logger.info('==' + self._name + "==开始爬取")
         resolve_list = []
         try:
             for url in self.get_page_urls():
-                session = aiohttp.ClientSession()
-                res = session.get(url=url, headers=header)
-                resolve = self.do_resolve(await res.text())
+                print(url)
+                while True:
+                    response, somethingHappened = self.askUrl(url)
+                    if somethingHappened:
+                        time.sleep(5)
+                    else:
+                        break
+                resolve = self.do_resolve(response)
                 resolve_list.extend(resolve)
-                asyncio.sleep(self.get_interval())
+                time.sleep(self.get_interval())
         except Exception as e:
             logger.error('==' + self._name + "==爬取失败")
             logger.error(e)
