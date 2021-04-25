@@ -60,5 +60,6 @@ def getDirectSubSize(path):
             print('%-30s%-20s' % (calBytes(size), subDir.name))
 
 
-userFolder = "D:\\software\\VMware\\Virtual Machines\\hadoop1"
-getDirectSubSize(userFolder)
+if __name__ == '__main__':
+    userFolder = "E:\VM"
+    getDirectSubSize(userFolder)
