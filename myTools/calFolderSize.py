@@ -61,5 +61,5 @@ def getDirectSubSize(path):
 
 
 if __name__ == '__main__':
-    userFolder = "E:\VM"
+    userFolder = "E:\VR"
     getDirectSubSize(userFolder)

@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\myTools\virtualMachine.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\spider\common\spreadProxy.py">
           <value>
             <Attribute>
