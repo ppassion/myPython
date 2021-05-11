@@ -127,7 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-/spider/practice/imgs/
-/spider/practice/info.md
-/spider/practice/urlInfo.yml
+/spider/red/imgs/
+/spider/red/info.md
+/spider/red/urlInfo.yml
 /spider/practice/*.md

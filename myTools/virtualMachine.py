@@ -15,7 +15,10 @@ class operateVMThread(threading.Thread):
     # 命令行工具是对虚拟机的vmx文件进行操作，所以需要维护一套主机名与vmx文件路径的映射关系
     vmx_map = {'hadoop1': r'"D:\\software\\VMware\\Virtual Machines\\hadoop1\\hadoop1.vmx"',
                'hadoop2': r'"D:\\software\\VMware\\Virtual Machines\\hadoop2\\hadoop1.vmx"',
-               'hadoop3': r'"D:\\software\\VMware\\Virtual Machines\\hadoop3\\hadoop1.vmx"'}
+               'hadoop3': r'"D:\\software\\VMware\\Virtual Machines\\hadoop3\\hadoop1.vmx"',
+               'm01': r'F:\\VM\\m01\\m01.vmx',
+               'm02': r'F:\\VM\\m02\\m02.vmx',
+               'm03': r'F:\\VM\\m03\\m03.vmx'}
 
     # 4种操作，启、停、重启、挂起，注意每个value的前后都有空格，命令中需要的空格写在这里了
     operation_map = {'start': r' -T ws start ',
@@ -57,7 +60,7 @@ def operate(host_list: list, operation: str):
 
 
 if __name__ == '__main__':
-    hosts = ('hadoop1', 'hadoop2', 'hadoop3')
-    # operate(hosts, 'start')
-    operate(hosts, 'suspend')
+    hosts = ('m01', 'm02', 'm03')
+    operate(hosts, 'start')
+    # operate(hosts, 'suspend')
     # operate(hosts, 'stop')

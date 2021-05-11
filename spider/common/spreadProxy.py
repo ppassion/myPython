@@ -86,7 +86,7 @@ def chunks(lst, n):
 
 
 if __name__ == '__main__':
-    configFile = open("../practice/urlInfo.yml", 'r', encoding='utf-8')
+    configFile = open("../red/urlInfo.yml", 'r', encoding='utf-8')
     config = configFile.read()
     configMap = yaml.load(config, Loader=yaml.FullLoader)
     while True:

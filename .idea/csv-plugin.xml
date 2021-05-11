@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\spider\1024\onlineFilm.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\spider\common\spreadProxy.py">
           <value>
             <Attribute>
