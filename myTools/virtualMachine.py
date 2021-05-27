@@ -61,6 +61,6 @@ def operate(host_list: list, operation: str):
 
 if __name__ == '__main__':
     hosts = ('m01', 'm02', 'm03')
-    operate(hosts, 'start')
-    # operate(hosts, 'suspend')
+    # operate(hosts, 'start')
+    operate(hosts, 'suspend')
     # operate(hosts, 'stop')

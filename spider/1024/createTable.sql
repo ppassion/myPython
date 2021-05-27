@@ -6,9 +6,9 @@ create table ONLINE_LINKS(
     REPLY_COUNT int,
     STATUS int
 );
-
+delete from online_links;
 select * from online_links;
 select count(1) from online_links;
-select * from online_links where status = 2;
+select * from online_links where status = 0;
 
-
+select * from online_links where url like '%4441128%';
